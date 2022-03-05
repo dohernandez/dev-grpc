@@ -48,10 +48,10 @@ ifeq ($(DEVGRPCGO_PATH),)
 	endif
 endif
 
--include $(DEVGRPCGO_PATH)/makefiles/protoc.mk
-
 SRC_PROTO_PATH = ./path/to/proto/files
 GO_PROTO_PATH = ./path/to/proto/gen/code
+
+-include $(DEVGRPCGO_PATH)/makefiles/protoc.mk
 
 # Add your custom targets here.
 
