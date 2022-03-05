@@ -50,8 +50,22 @@ endif
 
 -include $(DEVGRPCGO_PATH)/makefiles/protoc.mk
 
+SRC_PROTO_PATH = ./path/to/proto/files
+GO_PROTO_PATH = ./path/to/proto/gen/code
+
 # Add your custom targets here.
 
+## Generate code from proto file(s)
+proto-gen: proto-gen-code
+```
+
+In case you want to generate the swagger doc too, use the option `proto-gen-code-swagger` instead of `proto-gen-code`. The variable `SWAGGER_PATH` should be overwritten with the path where to save the `swagger.json`
+
+```Makefile
+...
+
+## Generate code from proto file(s)
+proto-gen: proto-gen-code-swagger
 ```
 
 #### In combination with github.com/bool64/dev
@@ -106,4 +120,6 @@ endif
 ## Run tests
 test: test-unit
 
+## Generate code from proto file(s)
+proto-gen: proto-gen-code
 ```
