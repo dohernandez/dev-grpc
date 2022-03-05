@@ -6,6 +6,8 @@ This library provides scripts to automate common routines with modular `Makefile
 
 ### Manual
 
+#### As standalone
+
 Add a test file (e.g. `dev_test.go`) to your module with unused import.
 
 ```go
@@ -49,5 +51,59 @@ endif
 -include $(DEVGRPCGO_PATH)/makefiles/protoc.mk
 
 # Add your custom targets here.
+
+```
+
+#### In combination with github.com/bool64/dev
+
+When is already in use  [github.com/bool64/dev](github.com/bool64/dev) for GitHub CI and Makefile features.
+
+Add in the existing test file (e.g. `dev_test.go`) to your module with unused import. There is no need to define another file.
+
+```go
+package mymodule_test
+
+import (
+	_ "github.com/bool64/dev" // Include development helpers to project.
+    _ "github.com/dohernandez/dev-grpc" // Include development grpc helpers to project. 
+)
+```
+
+Add `Makefile` to your module with includes standard targets.
+
+```Makefile
+...
+
+ifneq "$(wildcard ./vendor )" ""
+  ...
+  ifneq "$(wildcard ./vendor/github.com/bool64/dev)" ""
+  	DEVGO_PATH := ./vendor/github.com/bool64/dev
+  endif
+  # adding github.com/dohernandez/dev-grpc
+  ifneq "$(wildcard ./vendor/github.com/dohernandez/dev-grpc)" ""
+  	DEVGRPCGO_PATH := ./vendor/github.com/dohernandez/dev-grpc
+  endif
+endif
+
+...
+
+# defining DEVGRPCGO_PATH
+ifeq ($(DEVGRPCGO_PATH),)
+	DEVGRPCGO_PATH := $(shell GO111MODULE=on $(GO) list ${modVendor} -f '{{.Dir}}' -m github.com/bool64/dev)
+	ifeq ($(DEVGRPCGO_PATH),)
+    	$(info Module github.com/dohernandez/dev-grpc not found, downloading.)
+    	DEVGRPCGO_PATH := $(shell export GO111MODULE=on && $(GO) get github.com/dohernandez/dev-grpc && $(GO) list -f '{{.Dir}}' -m github.com/dohernandez/dev-grpc)
+	endif
+endif
+
+...
+-include $(DEVGO_PATH)/makefiles/reset-ci.mk
+
+-include $(DEVGRPCGO_PATH)/makefiles/protoc.mk
+
+# Add your custom targets here.
+
+## Run tests
+test: test-unit
 
 ```
