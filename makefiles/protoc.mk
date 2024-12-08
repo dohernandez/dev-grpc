@@ -16,17 +16,23 @@ endif
 # Override in app Makefile to control build target, example SWAGGER_PATH=./resources/swagger
 SWAGGER_PATH ?= .
 
+PROTO_GEN_GO_EXTRA_ARGS ?=
+
 ## Check/install protoc tool
 protoc-cli:
 	@bash $(DEVGRPC_SCRIPTS)/protoc-gen-cli.sh
 
 ## Generate code from proto file(s)
 proto-gen-code: protoc-cli
-	@protoc --proto_path=$(SRC_PROTO_PATH) $(SRC_PROTO_PATH)/*.proto  --go_opt=paths=source_relative --go_out=:$(GO_PROTO_PATH)
+	@protoc --proto_path=$(SRC_PROTO_PATH) $(SRC_PROTO_PATH)/*.proto \
+ 			--go_opt=paths=source_relative --go_out=:$(GO_PROTO_PATH) \
+ 			$(PROTO_GEN_GO_EXTRA_ARGS)
 
-## Generate code from proto file(s) and swagger doc
-proto-gen-code-swagger: protoc-cli
-	@protoc --proto_path=$(SRC_PROTO_PATH) $(SRC_PROTO_PATH)/*.proto  --go_opt=paths=source_relative --go_out=:$(GO_PROTO_PATH) --go-grpc_opt=paths=source_relative --go-grpc_out=:$(GO_PROTO_PATH) --grpc-gateway_opt=paths=source_relative --grpc-gateway_out=:$(GO_PROTO_PATH) --openapiv2_out=:$(SWAGGER_PATH)
+## Generate append swagger plugin to generate code from proto file(s)
+proto-gen-code-swagger-plugin:
+	@PROTO_GEN_GO_EXTRA_ARGS+="--go-grpc_opt=paths=source_relative --go-grpc_out=:$(GO_PROTO_PATH) \
+			--grpc-gateway_opt=paths=source_relative --grpc-gateway_out=:$(GO_PROTO_PATH) \
+			--openapiv2_out=:$(SWAGGER_PATH)"
 
 
-.PHONY: protoc-cli proto-gen-code proto-gen-code-swagger
+.PHONY: protoc-cli proto-gen-code proto-gen-code-swagger-plugin
