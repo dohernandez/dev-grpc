@@ -5,6 +5,7 @@ package dev_grpc
 //
 // See https://github.com/golang/go/issues/26366.
 import (
+	_ "github.com/bufbuild/protovalidate-go"
 	_ "github.com/dohernandez/dev-grpc/makefiles"
 	_ "github.com/dohernandez/dev-grpc/scripts"
 )

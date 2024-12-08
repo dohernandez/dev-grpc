@@ -7,10 +7,15 @@
 [ -z "$PROTOC_GEN_GO_VERSION" ] && PROTOC_GEN_GO_VERSION="v1.35.2"
 [ -z "$PROTOC_GEN_GO_GRPC_VERSION" ] && PROTOC_GEN_GO_GRPC_VERSION="1.5.1"
 [ -z "$PROTOC_GEN_GRPC_GATEWAY_VERSION" ] && PROTOC_GEN_GRPC_GATEWAY_VERSION="v2.24.0"
+[ -z "$PROTOC_GEN_VALIDATE_VERSION" ] && PROTOC_GEN_VALIDATE_VERSION="v1.1.0"
 
 # detecting GOPATH and removing trailing "/" if any
 GOPATH="$(go env GOPATH)"
 GOPATH=${GOPATH%/}
+
+# Clearing GOFLAGS temporarily to avoid cannot query module due to -mod=vendor issues.
+GOFLAGS_SET=${GOFLAGS}
+export GOFLAGS=""
 
 # adding GOBIN to PATH
 [[ ":$PATH:" != *"$GOPATH/bin"* ]] && PATH=$PATH:"$GOPATH"/bin
@@ -129,7 +134,7 @@ fi
 
 if ! command -v protoc-gen-grpc-gateway > /dev/null; then \
     echo ">> Installing protoc-gen-grpc-gateway $PROTOC_GEN_GRPC_GATEWAY_VERSION... "; \
-    $GO install google.golang.org/protobuf/cmd/protoc-gen-grpc-gateway@"$PROTOC_GEN_GRPC_GATEWAY_VERSION";
+    $GO install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@"$PROTOC_GEN_GRPC_GATEWAY_VERSION";
 else
   VERSION_INSTALLED="$(protoc-gen-grpc-gateway --version | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')"
   if [ "${VERSION_INSTALLED}" != "${PROTOC_GEN_GRPC_GATEWAY_VERSION}" ]; then \
@@ -144,8 +149,5 @@ if ! command -v protoc-gen-openapiv2 > /dev/null ; then \
     $GO install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2;
 fi
 
-# checking if protoc-gen-openapiv2 is available
-if ! command -v protoc-gen-openapiv2 > /dev/null ; then \
-    echo ">> installing protoc-gen-openapiv2... "; \
-    $GO install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2;
-fi
+# Restoring GOFLAGS
+export GOFLAGS=${GOFLAGS_SET}
