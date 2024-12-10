@@ -28,11 +28,11 @@ proto-gen-code: protoc-cli
  			--go_opt=paths=source_relative --go_out=:$(GO_PROTO_PATH) \
  			$(PROTO_GEN_GO_EXTRA_ARGS)
 
-## Generate append swagger plugin to generate code from proto file(s)
+## Append swagger plugin to generate code from proto file(s). This target should be used before target proto-gen-code
 proto-gen-code-swagger-plugin:
-	@PROTO_GEN_GO_EXTRA_ARGS+="--go-grpc_opt=paths=source_relative --go-grpc_out=:$(GO_PROTO_PATH) \
+	@$(eval PROTO_GEN_GO_EXTRA_ARGS+= --go-grpc_opt=paths=source_relative --go-grpc_out=:$(GO_PROTO_PATH) \
 			--grpc-gateway_opt=paths=source_relative --grpc-gateway_out=:$(GO_PROTO_PATH) \
-			--openapiv2_out=:$(SWAGGER_PATH)"
+			--openapiv2_out=:$(SWAGGER_PATH) --openapiv2_opt=disable_default_responses=true)
 
 
 .PHONY: protoc-cli proto-gen-code proto-gen-code-swagger-plugin
